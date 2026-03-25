@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartCore HVAC AI — Интеллектуальное управление климатом</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:        #070B18;
+  --bg2:       #0C1221;
+  --bg3:       #111829;
+  --card:      #141D33;
+  --card2:     #192140;
+  --border:    rgba(46,90,170,0.25);
+  --blue:      #2E7DFF;
+  --blue2:     #00C4FF;
+  --teal:      #00D4A0;
+  --orange:    #FF7A35;
+  --yellow:    #FFD166;
+  --text:      #E4ECF7;
+  --muted:     #6B82A8;
+  --dim:       #3A4E70;
+  --navy:      #1B2A4A;
+  --glow-b:    rgba(46,125,255,0.15);
+  --glow-t:    rgba(0,212,160,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── GRID NOISE BACKGROUND ─────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(46,125,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(46,125,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+/* ── NAVBAR ────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5vw; height: 64px;
+  background: rgba(7,11,24,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: background .3s;
+}
+.nav-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px; font-weight: 700; letter-spacing: 0.05em;
+  color: var(--text);
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-logo span { color: var(--blue2); }
+.nav-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--teal);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(0,212,160,0.4); }
+  50%      { opacity: .8; transform: scale(1.2); box-shadow: 0 0 0 6px rgba(0,212,160,0); }
+}
+.nav-links { display: flex; align-items: center; gap: 36px; }
+.nav-links a {
+  font-size: 13px; font-weight: 500; letter-spacing: 0.06em;
+  text-decoration: none; color: var(--muted); text-transform: uppercase;
+  transition: color .2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  background: var(--blue); color: #fff !important;
+  padding: 8px 20px; border-radius: 4px;
+  font-size: 13px !important;
+}
+.nav-cta:hover { background: var(--blue2) !important; color: #000 !important; }
+
+/* ── HERO ──────────────────────────────────────────────── */
+#hero {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center; gap: 60px;
+  padding: 120px 5vw 80px;
+  overflow: hidden;
+}
+.hero-glow {
+  position: absolute; top: -20%; right: -10%;
+  width: 700px; height: 700px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(46,125,255,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-glow2 {
+  position: absolute; bottom: 0; left: 10%;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,160,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(46,125,255,0.1); border: 1px solid rgba(46,125,255,0.3);
+  padding: 6px 14px; border-radius: 100px; margin-bottom: 28px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
+  color: var(--blue2); text-transform: uppercase;
+  animation: fadeUp .6s ease both;
+}
+.hero-badge::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--blue2);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+.hero-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(44px, 6vw, 78px);
+  font-weight: 800; line-height: 1.0;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  animation: fadeUp .6s .1s ease both;
+}
+.hero-title em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 50%, var(--teal) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  margin-top: 20px;
+  font-size: 18px; font-weight: 300; color: var(--muted);
+  line-height: 1.7; max-width: 520px;
+  animation: fadeUp .6s .2s ease both;
+}
+.hero-btns {
+  margin-top: 40px; display: flex; align-items: center; gap: 16px;
+  animation: fadeUp .6s .3s ease both;
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--blue); color: #fff;
+  padding: 14px 28px; border-radius: 6px;
+  font-size: 15px; font-weight: 600; text-decoration: none;
+  transition: all .2s;
+  box-shadow: 0 0 30px rgba(46,125,255,0.3);
+}
+.btn-primary:hover { background: var(--blue2); color: #000; transform: translateY(-2px); box-shadow: 0 0 40px rgba(0,196,255,0.4); }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--border); color: var(--muted);
+  padding: 14px 28px; border-radius: 6px;
+  font-size: 15px; font-weight: 500; text-decoration: none;
+  transition: all .2s;
+}
+.btn-secondary:hover { border-color: var(--blue); color: var(--text); }
+
+/* ── HERO DASHBOARD ─────────────────────────────────────── */
+.hero-visual {
+  position: relative; animation: fadeRight .8s .2s ease both;
+}
+.dashboard {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(46,125,255,0.08);
+}
+.dash-header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.dash-title {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+  color: var(--muted); letter-spacing: 0.08em;
+}
+.dash-status {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  color: var(--teal);
+}
+.dash-status::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--teal); animation: pulse-dot 2s ease-in-out infinite;
+}
+.zones-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; background: var(--border);
+}
+.zone-card {
+  background: var(--bg3); padding: 20px;
+  transition: background .2s;
+}
+.zone-card:hover { background: var(--card); }
+.zone-name {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--dim); margin-bottom: 12px;
+}
+.zone-temp {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 44px; font-weight: 700; line-height: 1;
+  color: var(--text);
+}
+.zone-temp span { font-size: 20px; color: var(--muted); }
+.zone-metrics {
+  display: flex; gap: 16px; margin-top: 12px;
+}
+.zone-metric {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted);
+}
+.zone-metric b { color: var(--text); }
+.zone-bar-wrap { margin-top: 10px; height: 3px; background: var(--border); border-radius: 2px; }
+.zone-bar { height: 100%; border-radius: 2px; transition: width 1s ease; }
+.dash-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 24px;
+}
+.dash-stat {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted);
+}
+.dash-stat b { color: var(--teal); }
+
+/* ── KEY METRICS STRIP ─────────────────────────────────── */
+#metrics {
+  position: relative; z-index: 1;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 40px 5vw;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+}
+.metric-item {
+  padding: 0 40px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.metric-item:last-child { border-right: none; }
+.metric-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 52px; font-weight: 800; line-height: 1;
+  background: linear-gradient(135deg, var(--blue2), var(--teal));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.metric-unit { font-size: 22px; }
+.metric-label {
+  font-size: 13px; color: var(--muted);
+  margin-top: 8px; font-weight: 400;
+}
+
+/* ── SECTIONS GENERAL ──────────────────────────────────── */
+section { position: relative; z-index: 1; }
+.section-inner { padding: 100px 5vw; }
+.section-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--blue2); margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(36px, 5vw, 56px); font-weight: 700; line-height: 1.1;
+  color: var(--text);
+}
+.section-title em {
+  font-style: normal; color: var(--blue2);
+}
+.section-sub {
+  font-size: 17px; font-weight: 300; color: var(--muted);
+  margin-top: 16px; max-width: 600px; line-height: 1.7;
+}
+
+/* ── HOW IT WORKS ──────────────────────────────────────── */
+#how { background: var(--bg2); }
+.how-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 2px; margin-top: 60px;
+  border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+}
+.how-card {
+  background: var(--bg3); padding: 36px 32px;
+  transition: background .3s;
+  position: relative;
+}
+.how-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--teal));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .4s ease;
+}
+.how-card:hover { background: var(--card); }
+.how-card:hover::before { transform: scaleX(1); }
+.how-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; color: var(--dim); letter-spacing: 0.1em;
+  margin-bottom: 20px;
+}
+.how-icon {
+  width: 48px; height: 48px; margin-bottom: 20px;
+  background: rgba(46,125,255,0.08);
+  border: 1px solid rgba(46,125,255,0.2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.how-card h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px; font-weight: 600; margin-bottom: 12px;
+  color: var(--text);
+}
+.how-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+.how-detail {
+  margin-top: 16px; padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; color: var(--blue2); letter-spacing: 0.05em;
+}
+
+/* ── TIERS ─────────────────────────────────────────────── */
+#tiers { background: var(--bg); }
+.tiers-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; margin-top: 60px;
+}
+.tier-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 32px 24px;
+  transition: all .3s; position: relative; overflow: hidden;
+}
+.tier-card::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+}
+.tier-0::after { background: linear-gradient(90deg, var(--teal), #00ff9f); }
+.tier-1::after { background: linear-gradient(90deg, var(--blue), var(--blue2)); }
+.tier-2::after { background: linear-gradient(90deg, var(--orange), var(--yellow)); }
+.tier-3::after { background: linear-gradient(90deg, #9B59B6, #E040FB); }
+.tier-card:hover { transform: translateY(-6px); border-color: rgba(46,125,255,0.4); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+.tier-badge {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 3px;
+  margin-bottom: 20px;
+}
+.tier-0 .tier-badge { background: rgba(0,212,160,0.12); color: var(--teal); border: 1px solid rgba(0,212,160,0.2); }
+.tier-1 .tier-badge { background: rgba(46,125,255,0.12); color: var(--blue2); border: 1px solid rgba(46,125,255,0.2); }
+.tier-2 .tier-badge { background: rgba(255,122,53,0.12); color: var(--orange); border: 1px solid rgba(255,122,53,0.2); }
+.tier-3 .tier-badge { background: rgba(155,89,182,0.12); color: #C39BD3; border: 1px solid rgba(155,89,182,0.2); }
+.tier-card h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 26px; font-weight: 700; margin-bottom: 8px; color: var(--text);
+}
+.tier-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+.tier-price {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 36px; font-weight: 700; line-height: 1; color: var(--text);
+  margin-bottom: 4px;
+}
+.tier-price span { font-size: 16px; font-weight: 400; color: var(--muted); font-family: 'IBM Plex Sans', sans-serif; }
+.tier-features {
+  list-style: none; margin-top: 24px; display: flex; flex-direction: column; gap: 10px;
+}
+.tier-features li {
+  font-size: 13px; color: var(--muted);
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.tier-features li::before {
+  content: '→'; color: var(--blue2); flex-shrink: 0; margin-top: 1px;
+}
+
+/* ── SAFETY ────────────────────────────────────────────── */
+#safety {
+  background: var(--bg2);
+}
+.safety-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
+  margin-top: 60px; align-items: start;
+}
+.safety-layers {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.safety-layer {
+  display: flex; align-items: center; gap: 20px;
+  padding: 20px 24px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; transition: all .2s; cursor: default;
+}
+.safety-layer:hover { background: var(--card); border-color: rgba(46,125,255,0.3); }
+.safety-layer-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  width: 32px; text-align: center;
+  color: var(--dim);
+}
+.safety-layer-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.l0 .safety-layer-dot { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+.l1 .safety-layer-dot { background: var(--blue); box-shadow: 0 0 8px var(--blue); }
+.l2 .safety-layer-dot { background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+.l3 .safety-layer-dot { background: var(--dim); }
+.safety-layer-info h4 {
+  font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px;
+}
+.safety-layer-info p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.safety-principles { display: flex; flex-direction: column; gap: 20px; }
+.safety-p {
+  padding: 24px; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 10px;
+  border-left: 3px solid var(--blue);
+}
+.safety-p h4 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.safety-p p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* ── SELF-LEARNING ─────────────────────────────────────── */
+#ai { background: var(--bg); }
+.timeline {
+  position: relative; margin-top: 60px;
+  padding-left: 40px;
+}
+.timeline::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--blue) 0%, var(--teal) 50%, var(--dim) 100%);
+}
+.tl-item {
+  position: relative; padding: 0 0 40px 40px;
+  display: grid; grid-template-columns: 140px 1fr; gap: 40px;
+}
+.tl-item::before {
+  content: ''; position: absolute; left: -5px; top: 6px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--blue2); border: 2px solid var(--bg);
+}
+.tl-item:nth-child(3)::before { background: var(--teal); }
+.tl-item:nth-child(4)::before { background: var(--orange); }
+.tl-item:nth-child(5)::before { background: var(--yellow); }
+.tl-time {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; font-weight: 500; color: var(--blue2); padding-top: 2px;
+}
+.tl-content h4 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.tl-content p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.tl-tag {
+  display: inline-block; margin-top: 8px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 3px;
+  background: rgba(46,125,255,0.08); color: var(--blue2);
+}
+
+/* ── INTEGRATIONS ──────────────────────────────────────── */
+#integrations { background: var(--bg2); }
+.proto-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-top: 48px;
+}
+.proto-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 20px;
+  text-align: center; transition: all .2s;
+}
+.proto-card:hover { background: var(--card); border-color: rgba(46,125,255,0.35); transform: translateY(-3px); }
+.proto-icon { font-size: 28px; margin-bottom: 10px; }
+.proto-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; font-weight: 500; color: var(--text);
+  margin-bottom: 4px;
+}
+.proto-desc { font-size: 11px; color: var(--muted); }
+
+/* ── TESTIMONIAL / RESULTS ─────────────────────────────── */
+#results { background: var(--bg); }
+.results-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  margin-top: 60px;
+}
+.result-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 12px; padding: 36px 32px;
+  position: relative; overflow: hidden;
+}
+.result-card::before {
+  content: '"';
+  position: absolute; top: -20px; right: 24px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 140px; font-weight: 800;
+  color: rgba(46,125,255,0.05); line-height: 1;
+  pointer-events: none;
+}
+.result-card blockquote {
+  font-size: 16px; font-weight: 300; color: var(--muted);
+  line-height: 1.7; margin-bottom: 24px;
+  font-style: italic;
+}
+.result-card cite {
+  font-style: normal; font-size: 13px; font-weight: 600; color: var(--text);
+}
+.result-card small { font-size: 12px; color: var(--dim); display: block; margin-top: 2px; }
+.result-metrics {
+  display: flex; gap: 24px; margin-top: 24px;
+  padding-top: 24px; border-top: 1px solid var(--border);
+}
+.rm-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 32px; font-weight: 700;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.rm-label { font-size: 11px; color: var(--dim); }
+
+/* ── CONTACT / CTA ─────────────────────────────────────── */
+#contact {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+}
+.cta-wrap {
+  text-align: center; max-width: 680px; margin: 0 auto;
+  padding: 100px 5vw;
+}
+.cta-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(40px, 6vw, 68px); font-weight: 800; line-height: 1.0;
+  color: var(--text); margin-bottom: 20px;
+}
+.cta-title em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--blue2), var(--teal));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.cta-sub { font-size: 17px; color: var(--muted); margin-bottom: 48px; line-height: 1.7; }
+.contact-form {
+  display: flex; flex-direction: column; gap: 16px;
+  text-align: left; margin-bottom: 32px;
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-field {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.form-field label {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--dim);
+}
+.form-field input, .form-field select, .form-field textarea {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 12px 16px;
+  color: var(--text); font-family: 'IBM Plex Sans', sans-serif; font-size: 14px;
+  outline: none; transition: border-color .2s;
+  width: 100%;
+}
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(46,125,255,0.1);
+}
+.form-field select option { background: var(--bg3); }
+.form-field textarea { resize: vertical; min-height: 100px; }
+.btn-form {
+  background: var(--blue); color: #fff;
+  border: none; border-radius: 6px; padding: 14px 32px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+  box-shadow: 0 0 30px rgba(46,125,255,0.3);
+  width: 100%;
+}
+.btn-form:hover { background: var(--blue2); color: #000; box-shadow: 0 0 40px rgba(0,196,255,0.4); }
+.contact-direct {
+  display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+  font-size: 14px; color: var(--muted);
+}
+.contact-direct a { color: var(--blue2); text-decoration: none; }
+.contact-direct a:hover { color: var(--teal); }
+
+/* ── FOOTER ────────────────────────────────────────────── */
+footer {
+  position: relative; z-index: 1;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 32px 5vw;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-brand {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 700; color: var(--text);
+}
+.footer-brand span { color: var(--blue2); }
+.footer-copy { font-size: 12px; color: var(--dim); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 12px; color: var(--dim); text-decoration: none; }
+.footer-links a:hover { color: var(--muted); }
+
+/* ── ANIMATIONS ────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .tiers-grid { grid-template-columns: repeat(2, 1fr); }
+  .proto-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  #hero { grid-template-columns: 1fr; padding-top: 100px; }
+  .hero-visual { display: none; }
+  #metrics { grid-template-columns: repeat(2, 1fr); }
+  .how-grid { grid-template-columns: 1fr; }
+  .safety-grid { grid-template-columns: 1fr; }
+  .results-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 16px; text-align: center; }
+}
+@media (max-width: 600px) {
+  #metrics { grid-template-columns: 1fr 1fr; }
+  .metric-item { border-right: none; border-bottom: 1px solid var(--border); padding: 20px; }
+  .tiers-grid { grid-template-columns: 1fr; }
+  .proto-grid { grid-template-columns: repeat(2, 1fr); }
+  .nav-links { display: none; }
+  .tl-item { grid-template-columns: 1fr; gap: 4px; }
+  .tl-time { padding-top: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ─────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-dot"></div>
+    SmartCore <span>HVAC AI</span>
+  </div>
+  <div class="nav-links">
+    <a href="#how">Как работает</a>
+    <a href="#tiers">Конфигурации</a>
+    <a href="#safety">Безопасность</a>
+    <a href="#ai">Самообучение</a>
+    <a href="#integrations">Интеграции</a>
+    <a href="#contact" class="nav-cta">Связаться</a>
+  </div>
+</nav>
+
+<!-- ── HERO ────────────────────────────────────────────────── -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">v1.0</div>
+    <h1 class="hero-title">
+      Климат<br>под<br><em>управлением ИИ</em>
+    </h1>
+    <p class="hero-sub">
+      Промышленная система предиктивного управления HVAC. Работает полностью локально,
+      без облака. Экономия до 20% на отоплении и кондиционировании — с первого дня.
+    </p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-primary">
+        Запросить предложение →
+      </a>
+      <a href="#tiers" class="btn-secondary">
+        Выбрать конфигурацию
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="dashboard">
+      <div class="dash-header">
+        <div class="dash-title">SMARTCORE / ОБЪЕКТ #001 / РЕАЛ. ВРЕМЯ</div>
+        <div class="dash-status">СИСТЕМА АКТИВНА</div>
+      </div>
+      <div class="zones-grid">
+        <div class="zone-card">
+          <div class="zone-name">Зона 1 · Гостиная</div>
+          <div class="zone-temp" id="t1">22<span>.3 °C</span></div>
+          <div class="zone-metrics">
+            <div class="zone-metric">CO₂ <b id="co2-1">647</b> ppm</div>
+            <div class="zone-metric">RH <b>48%</b></div>
+          </div>
+          <div class="zone-bar-wrap">
+            <div class="zone-bar" id="bar1" style="width:68%;background:linear-gradient(90deg,#2E7DFF,#00C4FF)"></div>
+          </div>
+        </div>
+        <div class="zone-card">
+          <div class="zone-name">Зона 2 · Кабинет</div>
+          <div class="zone-temp" id="t2">21<span>.8 °C</span></div>
+          <div class="zone-metrics">
+            <div class="zone-metric">CO₂ <b id="co2-2">812</b> ppm</div>
+            <div class="zone-metric">RH <b>52%</b></div>
+          </div>
+          <div class="zone-bar-wrap">
+            <div class="zone-bar" id="bar2" style="width:82%;background:linear-gradient(90deg,#FF7A35,#FFD166)"></div>
+          </div>
+        </div>
+        <div class="zone-card">
+          <div class="zone-name">Зона 3 · Спальня</div>
+          <div class="zone-temp" id="t3">19<span>.5 °C</span></div>
+          <div class="zone-metrics">
+            <div class="zone-metric">CO₂ <b id="co2-3">574</b> ppm</div>
+            <div class="zone-metric">RH <b>44%</b></div>
+          </div>
+          <div class="zone-bar-wrap">
+            <div class="zone-bar" id="bar3" style="width:45%;background:linear-gradient(90deg,#00D4A0,#00ff9f)"></div>
+          </div>
+        </div>
+        <div class="zone-card">
+          <div class="zone-name">Зона 4 · Кухня</div>
+          <div class="zone-temp" id="t4">23<span>.1 °C</span></div>
+          <div class="zone-metrics">
+            <div class="zone-metric">CO₂ <b id="co2-4">1043</b> ppm</div>
+            <div class="zone-metric">RH <b>61%</b></div>
+          </div>
+          <div class="zone-bar-wrap">
+            <div class="zone-bar" id="bar4" style="width:90%;background:linear-gradient(90deg,#FF7A35,#FF4444)"></div>
+          </div>
+        </div>
+      </div>
+      <div class="dash-footer">
+        <div class="dash-stat">МПЦ горизонт <b>4 ч</b></div>
+        <div class="dash-stat">Экономия сегодня <b>+23%</b></div>
+        <div class="dash-stat">Время обучения <b>02:00</b></div>
+        <div class="dash-stat">Безопасность <b>OK</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── KEY METRICS ──────────────────────────────────────────── -->
+<div id="metrics">
+  <div class="metric-item reveal">
+    <div class="metric-val"><span id="c1">0</span><span class="metric-unit">%</span></div>
+    <div class="metric-label">Экономия энергии</div>
+  </div>
+  <div class="metric-item reveal" style="transition-delay:.1s">
+    <div class="metric-val">±<span id="c2">0</span><span class="metric-unit">°C</span></div>
+    <div class="metric-label">Точность управления</div>
+  </div>
+  <div class="metric-item reveal" style="transition-delay:.2s">
+    <div class="metric-val"><span id="c3">0</span><span class="metric-unit">ч</span></div>
+    <div class="metric-label">Горизонт прогноза МПЦ</div>
+  </div>
+  <div class="metric-item reveal" style="transition-delay:.3s">
+    <div class="metric-val">&lt;<span id="c4">0</span><span class="metric-unit">с</span></div>
+    <div class="metric-label">Реакция на CO₂ > 800 ppm</div>
+  </div>
+</div>
+
+<!-- ── HOW IT WORKS ─────────────────────────────────────────── -->
+<section id="how">
+  <div class="section-inner">
+    <div class="section-tag">// как работает</div>
+    <h2 class="section-title reveal">Интеллект, который <em>понимает</em> ваше здание</h2>
+    <p class="section-sub reveal">SmartCore AI изучает тепловую инерцию конкретного здания и оптимизирует климат непрерывно — без вмешательства человека.</p>
+
+    <div class="how-grid">
+      <div class="how-card reveal">
+        <div class="how-num">01 / 06</div>
+        <div class="how-icon">🌡️</div>
+        <h3>Зональное управление</h3>
+        <p>ПИД-регуляторы поддерживают температуру в каждой зоне независимо. Гистерезис ±0,3°C. Период дискретизации 10–60 секунд.</p>
+        <div class="how-detail">Точность: ±0.3°C на зону</div>
+      </div>
+      <div class="how-card reveal" style="transition-delay:.1s">
+        <div class="how-icon">🔮</div>
+        <div class="how-num">02 / 06</div>
+        <h3>Предиктивный МПЦ</h3>
+        <p>Модельно-предиктивное управление оптимизирует режим на 4 часа вперёд. Учитывает прогноз погоды, тарифы и присутствие людей.</p>
+        <div class="how-detail">Фиксация: 16 шагов × 15 мин.</div>
+      </div>
+      <div class="how-card reveal" style="transition-delay:.2s">
+        <div class="how-icon">💨</div>
+        <div class="how-num">03 / 06</div>
+        <h3>CO₂-вентиляция</h3>
+        <p>Датчики CO₂ управляют интенсивностью вентиляции в реальном времени. Реакция менее 90 секунд на превышение 800 ppm (ГОСТ 30494).</p>
+        <div class="how-detail">Уставка: 800 ppm / реакция: &lt;90s</div>
+      </div>
+      <div class="how-card reveal" style="transition-delay:.05s">
+        <div class="how-icon">🧠</div>
+        <div class="how-num">04 / 06</div>
+        <h3>LSTM прогноз нагрузки</h3>
+        <p>Нейросеть обучается на истории вашего объекта и прогнозирует тепловую нагрузку на 4–24 часа. MAE менее 8% от пиковой мощности.</p>
+        <div class="how-detail">MAE: &lt;8% от пика / планирование: 24ч.</div>
+      </div>
+      <div class="how-card reveal" style="transition-delay:.15s">
+        <div class="how-icon">🔋</div>
+        <div class="how-num">05 / 06</div>
+        <h3>Тарифная оптимизация</h3>
+        <p>Система переносит нагрузку на дешёвые ночные часы, управляет тепловым аккумулятором и вычисляет оптимальное время предпрогрева.</p>
+        <div class="how-detail">ночь: 2.50 ₽/кВт·ч / день: 5.80 ₽/кВт·ч</div>
+      </div>
+      <div class="how-card reveal" style="transition-delay:.25s">
+        <div class="how-icon">🔔</div>
+        <div class="how-num">06 / 06</div>
+        <h3>Предиктивное ТО</h3>
+        <p>Isolation Forest и экспертные правила обнаруживают засор фильтра, деградацию теплообменника и аномалии тока двигателя заранее.</p>
+        <div class="how-detail">Модели ИИ: Isolation Forest + Conv1D AE</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TIERS ────────────────────────────────────────────────── -->
+<section id="tiers">
+  <div class="section-inner">
+    <div class="section-tag">// конфигурации</div>
+    <h2 class="section-title reveal">Четыре уровня под <em>любой объект</em></h2>
+    <p class="section-sub reveal">От бюджетной квартиры до корпоративного парка зданий — одна платформа, масштабируемая архитектура.</p>
+
+    <div class="tiers-grid">
+      <div class="tier-card tier-0 reveal">
+        <div class="tier-badge">Tier 0 · Эконом</div>
+        <h3>Контроллер ESP32<br>+ Мини-ПК</h3>
+        <div class="tier-sub">Квартира · Дом без газа · Ретрофит</div>
+        <div class="tier-price">от 50 <span>тыс. руб. (разработка проекта шкафа управления, ПО, настройка, ПНР)</span></div>
+        <ul class="tier-features">
+          <li>ESP32-S3 узлы сбора данных</li>
+          <li>Весь ИИ на мини-ПК (N100/ARM)</li>
+          <li>Zigbee/Z-Wave датчики</li>
+          <li>Watchdog-реле + ИБП</li>
+          <li>ИИ модель Ollama Phi-3 LLM (8 ГБ)</li>
+        </ul>
+      </div>
+      <div class="tier-card tier-1 reveal" style="transition-delay:.1s">
+        <div class="tier-badge">Tier 1 · Стандарт</div>
+        <h3>Контроллер WB7<br>+ Мини-ПК</h3>
+        <div class="tier-sub">Дом с газом · Офис до 1000 м²</div>
+        <div class="tier-price">от 85 <span>тыс. руб. (разработка проекта шкафа управления, ПО, настройка, ПНР)</span></div>
+        <ul class="tier-features">
+          <li>Контроллер Wirenboard 7, сертификат ЕАС</li>
+          <li>OpenTherm, Modbus RTU/TCP</li>
+          <li>Безопасность wb-rules на WB7</li>
+          <li>ИИ модель Ollama Mistral 7B (16 ГБ)</li>
+          <li>База данных InfluxDB 2 года на NVMe</li>
+        </ul>
+      </div>
+      <div class="tier-card tier-2 reveal" style="transition-delay:.2s">
+        <div class="tier-badge">Tier 2 · Расширенный</div>
+        <h3>Контроллер WB7<br>+ Мощный ПК</h3>
+        <div class="tier-sub">Объект 1000+ м² · Локальный LLM</div>
+        <div class="tier-price">от 150 <span>тыс. руб. (разработка проекта шкафа управления, ПО, настройка, ПНР)</span></div>
+        <ul class="tier-features">
+          <li>ПК ARM RK3588 NPU / Ryzen 32 ГБ</li>
+          <li>ИИ модель LLM 13B без интернета</li>
+          <li>RL-агент ПИД (v2.0)</li>
+          <li>BACnet / KNX интеграция</li>
+          <li>Обучение моделей 1–3 мин</li>
+        </ul>
+      </div>
+      <div class="tier-card tier-3 reveal" style="transition-delay:.3s">
+        <div class="tier-badge">Tier 3 · Облако</div>
+        <h3>+ Сервер<br>Техно.CORE</h3>
+        <div class="tier-sub">Парк объектов · Управляющие компании</div>
+        <div class="tier-price">от +3 900 <span>руб./мес.</span></div>
+        <ul class="tier-features">
+          <li>VPN WireGuard, OTA-обновления</li>
+          <li>Федеративное ML по объектам</li>
+          <li>Централизованный мониторинг</li>
+          <li>ИИ Модель LLM 70B на GPU сервера</li>
+          <li>История данных 5+ лет</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SAFETY ───────────────────────────────────────────────── -->
+<section id="safety">
+  <div class="section-inner">
+    <div class="section-tag">// безопасность</div>
+    <h2 class="section-title reveal">ИИ <em>никогда</em> не управляет<br>напрямую</h2>
+    <p class="section-sub reveal">Принцип разделения ответственности: ИИ формирует рекомендации — слой безопасности решает, исполнять ли их. Аварийные цепи работают независимо от любых вычислений.</p>
+
+    <div class="safety-grid">
+      <div>
+        <div class="safety-layers">
+          <div class="safety-layer l0 reveal">
+            <div class="safety-layer-num">L0</div>
+            <div class="safety-layer-dot"></div>
+            <div class="safety-layer-info">
+              <h4>Аппаратный уровень</h4>
+              <p>Тепловые реле, предохранительные клапаны, термостаты защиты. Не программируются. Вне досягаемости любой автоматики.</p>
+            </div>
+          </div>
+          <div class="safety-layer l1 reveal" style="transition-delay:.1s">
+            <div class="safety-layer-num">L1</div>
+            <div class="safety-layer-dot"></div>
+            <div class="safety-layer-info">
+              <h4>Слой безопасности wb-rules / control_service</h4>
+              <p>4 проверки каждой команды: диапазон [15–27°C], скорость изменения ≤2°C/шаг, аварийные флаги, защита от замерзания при T&lt;5°C.</p>
+            </div>
+          </div>
+          <div class="safety-layer l2 reveal" style="transition-delay:.2s">
+            <div class="safety-layer-num">L2</div>
+            <div class="safety-layer-dot"></div>
+            <div class="safety-layer-info">
+              <h4>ИИ-рекомендации</h4>
+              <p>Модули МПЦ, LSTM, LLM формируют предложения по уставкам. Прямого доступа к исполнительным механизмам нет — только через L1.</p>
+            </div>
+          </div>
+          <div class="safety-layer l3 reveal" style="transition-delay:.3s">
+            <div class="safety-layer-num">L3</div>
+            <div class="safety-layer-dot"></div>
+            <div class="safety-layer-info">
+              <h4>Пользовательский интерфейс</h4>
+              <p>Ручная корректировка расписания и уставок. Всё также проходит через шлюз безопасности L1 перед исполнением.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="safety-principles">
+        <div class="safety-p reveal">
+          <h4>🛡 Watchdog двойного действия</h4>
+          <p>Аппаратное реле пингуется каждые 30 сек. При зависании мини-ПК — автоматическое закрытие клапанов. При потере MQTT &gt;60 сек — тот же аварийный режим.</p>
+        </div>
+        <div class="safety-p reveal" style="transition-delay:.1s">
+          <h4>🔍 11 обязательных тест-кейсов</h4>
+          <p>Перед сдачей объекта — автоматическое тестирование безопасности: граничные значения ±50°C, NaN, flood, gas leak, потеря MQTT, таймаут датчика, JSON-инъекция.</p>
+        </div>
+        <div class="safety-p reveal" style="transition-delay:.2s">
+          <h4>🔄 Теневое тестирование RL-агента</h4>
+          <p>RL-агент v2.0 включается только после 30-дневного параллельного наблюдения с автоматическим откатом при ухудшении качества управления.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SELF-LEARNING ──────────────────────────────────────────── -->
+<section id="ai">
+  <div class="section-inner">
+    <div class="section-tag">// самообучение</div>
+    <h2 class="section-title reveal">Умнеет каждую <em>ночь</em></h2>
+    <p class="section-sub reveal">Ежедневно в 02:00–04:00 система автоматически переобучает модели на данных вашего конкретного здания. Новая версия активируется только если она точнее предыдущей на ≥5%.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:60px;align-items:start">
+      <div class="timeline">
+        <div class="tl-item reveal">
+          <div class="tl-time">День 1–7</div>
+          <div class="tl-content">
+            <h4>Базовый ПИД + CO₂ контроль</h4>
+            <p>Система работает с первого дня. Классический ПИД с автонастройкой Зиглера–Николса, CO₂-управление вентиляцией.</p>
+            <div class="tl-tag">работает сразу</div>
+          </div>
+        </div>
+        <div class="tl-item reveal" style="transition-delay:.1s">
+          <div class="tl-time">День 14–30</div>
+          <div class="tl-content">
+            <h4>LightGBM + детекция присутствия</h4>
+            <p>Подключаются прогноз нагрузки на LightGBM и детекция присутствия людей (точность &gt;94%).</p>
+            <div class="tl-tag">экономия ~8–12%</div>
+          </div>
+        </div>
+        <div class="tl-item reveal" style="transition-delay:.2s">
+          <div class="tl-time">День 30–90</div>
+          <div class="tl-content">
+            <h4>LSTM + МПЦ-оптимизатор</h4>
+            <p>LSTM прогноз на 4 часа. МПЦ-оптимизатор (OSQP) активируется автоматически при R²&gt;0.85 RC-модели.</p>
+            <div class="tl-tag">экономия ~18–27%</div>
+          </div>
+        </div>
+        <div class="tl-item reveal" style="transition-delay:.3s">
+          <div class="tl-time">День 90+</div>
+          <div class="tl-content">
+            <h4>Полный стек · Максимальная эффективность</h4>
+            <p>Все алгоритмы активны. Предиктивное ТО, LLM-советник, тарифная оптимизация работают в полную силу.</p>
+            <div class="tl-tag">полная эффективность</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:28px" class="reveal">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue2);margin-bottom:16px;letter-spacing:.1em">АРХИТЕКТУРА МОДЕЛЕЙ</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+              <span style="color:var(--muted)">LSTM нагрузка (4 ч)</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal)">TFLite INT8 · 3 мс ARM</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+              <span style="color:var(--muted)">LightGBM присутствие</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal)">&gt;94% точность</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+              <span style="color:var(--muted)">Conv1D Autoencoder</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal)">аномалии μ+3σ</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+              <span style="color:var(--muted)">SARIMA + LightGBM</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal)">прогноз 24 ч</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+              <span style="color:var(--muted)">RC-модель здания (RLS)</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal)">R²&gt;0.92 за 14 дней</span>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid rgba(0,212,160,0.2);border-left:3px solid var(--teal);border-radius:12px;padding:28px" class="reveal" style="transition-delay:.1s">
+          <div style="font-size:13px;color:var(--muted);line-height:1.7">
+            <strong style="color:var(--text);display:block;margin-bottom:8px">🔒 Данные не покидают объект</strong>
+            Все модели обучаются и работают на вашем оборудовании. Облако и интернет — опциональные расширения, не обязательные условия работы.
+          </div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:28px" class="reveal" style="transition-delay:.2s">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--orange);margin-bottom:12px">LLM СОВЕТНИК · ЛОКАЛЬНО</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.7;font-style:italic;border-left:2px solid var(--border);padding-left:12px">
+            «Завтра прогнозируется −15°C. Запускаю предпрогрев в 05:30 — к 07:00 в доме будет +22°C. Нагрев в ночном тарифе обойдётся на 34% дешевле.»
+          </div>
+          <div style="margin-top:12px;font-size:11px;color:var(--dim)">Phi-3 mini · 8 ГБ RAM / Mistral 7B · 16 ГБ RAM</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── INTEGRATIONS ─────────────────────────────────────────── -->
+<section id="integrations">
+  <div class="section-inner">
+    <div class="section-tag">// интеграции и протоколы</div>
+    <h2 class="section-title reveal">Подключается к <em>любому</em> оборудованию</h2>
+    <p class="section-sub reveal">Нативная поддержка промышленных протоколов. Работает с существующими ПЛК без их замены.</p>
+
+    <div class="proto-grid">
+      <div class="proto-card reveal"><div class="proto-icon">🔌</div><div class="proto-name">Modbus RTU/TCP</div><div class="proto-desc">ПЛК, частотники, счётчики</div></div>
+      <div class="proto-card reveal" style="transition-delay:.05s"><div class="proto-icon">🔥</div><div class="proto-name">OpenTherm</div><div class="proto-desc">Газовые котлы Vaillant, Bosch, Buderus</div></div>
+      <div class="proto-card reveal" style="transition-delay:.1s"><div class="proto-icon">📡</div><div class="proto-name">Zigbee 3.0</div><div class="proto-desc">3000+ беспроводных устройств</div></div>
+      <div class="proto-card reveal" style="transition-delay:.15s"><div class="proto-icon">📻</div><div class="proto-name">Z-Wave Plus v2</div><div class="proto-desc">868 МГц, S2-шифрование</div></div>
+      <div class="proto-card reveal" style="transition-delay:.2s"><div class="proto-icon">🌐</div><div class="proto-name">Matter 1.x</div><div class="proto-desc">Apple Home, Google Home, Alexa</div></div>
+      <div class="proto-card reveal" style="transition-delay:.25s"><div class="proto-icon">🌡️</div><div class="proto-name">1-Wire (DS18B20)</div><div class="proto-desc">Цифровые термодатчики</div></div>
+      <div class="proto-card reveal" style="transition-delay:.3s"><div class="proto-icon">🏢</div><div class="proto-name">BACnet/IP</div><div class="proto-desc">Коммерческая недвижимость СУЗД</div></div>
+      <div class="proto-card reveal" style="transition-delay:.35s"><div class="proto-icon">⚡</div><div class="proto-name">M-Bus</div><div class="proto-desc">Счётчики тепла и воды</div></div>
+      <div class="proto-card reveal" style="transition-delay:.4s"><div class="proto-icon">🔧</div><div class="proto-name">ОВЕН / ПЛК</div><div class="proto-desc">Контроллер WB7 как шлюз к ПЛК, ретрофит</div></div>
+      <div class="proto-card reveal" style="transition-delay:.45s"><div class="proto-icon">📊</div><div class="proto-name">MQTT 3.1/5.0</div><div class="proto-desc">Шина данных IoT (QoS 0/1/2)</div></div>
+      <div class="proto-card reveal" style="transition-delay:.5s"><div class="proto-icon">🛜</div><div class="proto-name">REST API / WS</div><div class="proto-desc">FastAPI, JWT, WebSocket</div></div>
+      <div class="proto-card reveal" style="transition-delay:.55s"><div class="proto-icon">🔒</div><div class="proto-name">WireGuard VPN</div><div class="proto-desc">Облако Техно.CORE, Tier 3</div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── CONTACT / CTA ────────────────────────────────────────── -->
+<section id="contact">
+  <div class="cta-wrap">
+    <div class="section-tag" style="text-align:center">// начать внедрение</div>
+    <h2 class="cta-title reveal">Запросите <em>предложение</em><br>для вашего объекта</h2>
+    <p class="cta-sub reveal">Наш инженер проанализирует схему объекта, рассчитает стоимость и ответит на вопросы. Бесплатно.</p>
+
+    <div class="contact-direct reveal">
+      <span>📞 <a href="tel:+79222094545">+7 (922) 209-45-45</a></span>
+      <span>✉️ <a href="mailto:com@techno-core.pro">com@techno-core.pro</a></span>
+      <span>🌐 <a href="https://sc.techno-core.pro">sc.techno-core.pro</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ───────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-brand">SmartCore <span>HVAC AI</span></div>
+  <div class="footer-copy">© 2026 · ООО «Технологическое ядро» · ИНН 6686167883 · Екатеринбург · techno-core.pro</div> 
+  <div class="footer-links">
+    <a href="#">Политика конфиденциальности</a>
+    <a href="#">Документация</a>
+    <a href="mailto:com@techno-core.pro">Контакты</a>
+  </div>
+</footer>
+
+<!-- ── SCRIPTS ──────────────────────────────────────────────── -->
+<script>
+// ── Scroll reveal ────────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Counter animation ────────────────────────────────────────
+function animateCounter(el, target, suffix, duration = 1200) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start = Math.min(start + step, target);
+    el.textContent = (Math.floor(start * 10) / 10).toString().replace('.', ',');
+    if (start >= target) { el.textContent = target.toString().replace('.', ','); clearInterval(timer); }
+  }, 16);
+}
+const metricsObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) {
+    animateCounter(document.getElementById('c1'), 27, '%', 1400);
+    animateCounter(document.getElementById('c2'), 0.3, '°C', 1000);
+    animateCounter(document.getElementById('c3'), 4, 'ч', 800);
+    animateCounter(document.getElementById('c4'), 90, 'с', 1200);
+    metricsObserver.disconnect();
+  }
+}, { threshold: 0.5 });
+metricsObserver.observe(document.getElementById('metrics'));
+
+// ── Live dashboard simulation ─────────────────────────────────
+const zones = [
+  { t: 22.3, co2: 647, bar: 68, el_t: 't1', el_co2: 'co2-1', el_bar: 'bar1', tc: '#2E7DFF,#00C4FF' },
+  { t: 21.8, co2: 812, bar: 82, el_t: 't2', el_co2: 'co2-2', el_bar: 'bar2', tc: '#FF7A35,#FFD166' },
+  { t: 19.5, co2: 574, bar: 45, el_t: 't3', el_co2: 'co2-3', el_bar: 'bar3', tc: '#00D4A0,#00ff9f' },
+  { t: 23.1, co2: 1043, bar: 90, el_t: 't4', el_co2: 'co2-4', el_bar: 'bar4', tc: '#FF7A35,#FF4444' },
+];
+
+function updateDashboard() {
+  zones.forEach(z => {
+    z.t += (Math.random() - 0.5) * 0.2;
+    z.co2 += (Math.random() - 0.5) * 8;
+    z.t = Math.max(17, Math.min(26, z.t));
+    z.co2 = Math.max(400, Math.min(1200, z.co2));
+    z.bar = Math.max(20, Math.min(98, z.bar + (Math.random() - 0.5) * 3));
+
+    const tEl = document.getElementById(z.el_t);
+    if (tEl) {
+      const intPart = Math.floor(z.t);
+      const decPart = (z.t - intPart).toFixed(1).slice(1);
+      tEl.innerHTML = `${intPart}<span>${decPart} °C</span>`;
+    }
+    const co2El = document.getElementById(z.el_co2);
+    if (co2El) co2El.textContent = Math.round(z.co2);
+    const barEl = document.getElementById(z.el_bar);
+    if (barEl) barEl.style.width = z.bar + '%';
+  });
+}
+setInterval(updateDashboard, 2800);
+
+// ── Form submit ───────────────────────────────────────────────
+function handleSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.btn-form');
+  btn.textContent = '✓ Заявка отправлена! Мы свяжемся с вами в течение часа.';
+  btn.style.background = '#00D4A0';
+  btn.style.color = '#000';
+  btn.disabled = true;
+}
+
+// ── Nav scroll effect ─────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').style.background =
+    window.scrollY > 40 ? 'rgba(7,11,24,0.96)' : 'rgba(7,11,24,0.85)';
+});
+</script>
+</body>
+</html>
